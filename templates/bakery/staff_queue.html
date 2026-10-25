@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff orders | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a></header>
+  <main class="menu-section">
+    <h1>Branch order queue</h1>
+    {% if messages %}<ul aria-live="polite">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
+    {% for order in orders %}
+      <article>
+        <h2><a href="{% url 'bakery:order_detail' order.id %}">{{ order.order_number }}</a> — {{ order.get_status_display }}</h2>
+        <p>{{ order.user.name|default:order.user.email }} · {{ order.created_at }} · ₦{{ order.total_amount|floatformat:2 }}</p>
+        {% if order.status == "PREPARATION_QUEUED" and user.role != "DISPATCHER" or order.status == "PAID" and user.role != "DISPATCHER" %}
+          <form method="post" action="{% url 'bakery:update_order_status' order.id %}">{% csrf_token %}<input type="hidden" name="status" value="BAKING"><button type="submit">Mark baking</button></form>
+        {% endif %}
+        {% if order.status == "BAKING" and user.role != "BRANCH_MANAGER" %}
+          <form method="post" action="{% url 'bakery:update_order_status' order.id %}">{% csrf_token %}<input type="hidden" name="status" value="DISPATCHED"><button type="submit">Mark dispatched</button></form>
+        {% endif %}
+        {% if order.status == "PENDING" or order.status == "PAID" or order.status == "PREPARATION_QUEUED" or order.status == "BAKING" %}
+          {% if user.role != "DISPATCHER" %}<form method="post" action="{% url 'bakery:update_order_status' order.id %}">{% csrf_token %}<input type="hidden" name="status" value="CANCELLED"><button type="submit">Cancel order</button></form>{% endif %}
+        {% endif %}
+      </article>
+    {% empty %}<p>No active orders for your branch.</p>{% endfor %}
+    {% if user.role == "DISPATCHER" %}<p><a href="{% url 'bakery:dispatch_verification' %}">Verify delivery token</a></p>{% endif %}
+  </main>
+</body>
+</html>

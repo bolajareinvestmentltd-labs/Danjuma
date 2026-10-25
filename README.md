@@ -11,7 +11,11 @@ Django/Python web application for the Danjuma Bread multi-branch bakery. The ori
 - Responsive server-rendered bakery catalog and category filters.
 - `/api/health/` database readiness endpoint.
 
-Payment gateway calls, verified webhooks, customer checkout, QR dispatch verification, cron subscription execution, customer authentication screens, and WhatsApp delivery are **not integrated yet**. The models are groundwork, not evidence of completed payment or order fulfillment.
+Customer registration/sign-in, session basket, saved customer addresses, server-priced checkout, customer order history/reorder, branch-scoped staff order views, and audited order-status transitions are implemented. Checkout reserves inventory and creates an order in `PENDING`; it does not collect payment, and staff cannot mark an order paid. Once a trusted payment integration marks a delivery order paid, the application creates a timestamped signed dispatch token. Branch-assigned dispatchers can use the protected verification screen to confirm a dispatched order once; the token expires according to `QR_TOKEN_MAX_AGE` (default 24 hours).
+
+The subscription job creates preparation orders independently of billing. Each due order is uniquely linked to a subscription/date, records a `PREPARATION_QUEUED` state and moves the next delivery date only after stock is reserved. The HTTP trigger at `/api/cron/subscriptions/` requires `Authorization: Bearer <CRON_SECRET>` and is CSRF-exempt only because it requires this secret; alternatively, use `python manage.py process_due_subscriptions`. The endpoint returns aggregate success/failure counts and does not expose subscription or customer details.
+
+ALATPay/Paystack adapters and verified webhooks, recurring billing, actual QR image generation/scanning, customer address-book screens, and WhatsApp delivery/outbox retries are **not integrated yet**. A signed dispatch token is not itself a rendered QR image. Payment and subscription models are not evidence that payment collection or recurring billing is implemented.
 
 ## Local setup
 
@@ -32,10 +36,12 @@ Payment gateway calls, verified webhooks, customer checkout, QR dispatch verific
    - `ALLOWED_HOSTS`: comma-separated hostnames.
    - `CSRF_TRUSTED_ORIGINS`: comma-separated full origins, including scheme.
    - `DATABASE_URL`: local default is SQLite; use a managed PostgreSQL URL with the provider's pooled endpoint for serverless deployment.
+   - `DELIVERY_SERVICE_FEE`: server-calculated delivery service fee; defaults to `0.00`.
+   - `QR_TOKEN_MAX_AGE`: signed dispatch-token lifetime in seconds; defaults to `86400`.
    - `ALATPAY_API_KEY`, `ALATPAY_BUSINESS_ID`, `PAYSTACK_SECRET_KEY`: payment credentials, currently unused until gateway integration is implemented.
-   - `CRON_SECRET`: secret for a future scheduled endpoint, currently unused.
+   - `CRON_SECRET`: required bearer secret for the subscription-job HTTP trigger; use a long random value.
 
-   Do not commit real credentials. Configure deployed values through Vercel Project Settings; environment changes require a new deployment.
+   `SECRET_KEY` is required; the app refuses to start if it is missing. Do not commit real credentials. Configure deployed values through Vercel Project Settings; environment changes require a new deployment.
 
 4. Create/apply migrations and an admin account:
 
@@ -56,6 +62,6 @@ Payment gateway calls, verified webhooks, customer checkout, QR dispatch verific
 
 ## Vercel deployment notes
 
-Vercel supports Django through its Python Function runtime. This project has a conventional `manage.py` and WSGI entry point at `config.wsgi.application`. Before deploying, set a strong `SECRET_KEY`, `DEBUG=False`, production `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, and a managed PostgreSQL `DATABASE_URL` in Vercel. Prefer the provider's pooled/serverless database endpoint; Vercel Functions are request-driven, and local filesystem writes are not durable.
+Vercel supports Django through its Python Function runtime and detects projects from `manage.py`; this project exposes `config.wsgi.application`. Vercel automatically runs `collectstatic` and serves files from the configured `STATIC_ROOT` through its CDN, so no custom `vercel.json` is needed for this basic WSGI app. Before deploying, set a strong `SECRET_KEY`, `DEBUG=False`, production `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, and a managed PostgreSQL `DATABASE_URL` in Vercel. Prefer the provider's pooled/serverless database endpoint; Vercel Functions are request-driven, and local filesystem writes are not durable.
 
 Django's `collectstatic` output is configured at `staticfiles/`. Confirm Vercel's Django build collects and serves it during an actual preview deployment. Database migrations should be run deliberately against staging/production—not implicitly during each request. Cron configuration is deferred until its authenticated, idempotent endpoint exists.

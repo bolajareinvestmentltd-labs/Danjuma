@@ -15,10 +15,22 @@
       <span class="brand-mark" aria-hidden="true">D</span>
       <span><strong>DANJUMA BREAD</strong><small>Bakery &amp; confectionery</small></span>
     </a>
-    <a class="staff-link" href="{% url 'admin:index' %}">Staff sign in <span aria-hidden="true">↗</span></a>
+    <nav class="staff-link" aria-label="Account">
+      {% if user.is_authenticated %}
+        <a href="{% url 'bakery:order_history' %}">My orders</a>
+        <a href="{% url 'bakery:address_book' %}">Addresses</a>
+        {% if user.role != "CUSTOMER" %}<a href="{% url 'bakery:staff_queue' %}">Staff queue</a>{% endif %}
+        <form action="{% url 'bakery:logout' %}" method="post" class="inline-form">{% csrf_token %}<button type="submit">Sign out</button></form>
+      {% else %}
+        <a href="{% url 'bakery:login' %}">Sign in</a>
+        <a href="{% url 'bakery:register' %}">Create account</a>
+      {% endif %}
+      <a href="{% url 'bakery:checkout' %}">Basket ({{ request.session.cart|length|default:0 }})</a>
+    </nav>
   </header>
 
   <main>
+    {% if messages %}<ul class="messages" aria-live="polite">{% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}</ul>{% endif %}
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow">BAKED FRESH IN NIGERIA</p>
@@ -54,7 +66,13 @@
                 <p class="branch-name">{{ product.branch.name }}</p>
                 <h3>{{ product.title }}</h3>
                 <p class="product-description">{{ product.description|default:"Fresh from the oven, made with care." }}</p>
-                <div class="product-footer"><strong>₦{{ product.price|floatformat:0 }}</strong><span class="stock">{% if product.stock_qty %}{{ product.stock_qty }} available{% else %}Made fresh{% endif %}</span></div>
+                <div class="product-footer"><strong>₦{{ product.price|floatformat:0 }}</strong><span class="stock">{% if product.stock_qty %}{{ product.stock_qty }} available{% else %}Currently unavailable{% endif %}</span></div>
+                <form action="{% url 'bakery:add_to_cart' product.id %}" method="post" class="inline-form">
+                  {% csrf_token %}
+                  <label for="quantity-{{ product.id }}">Quantity</label>
+                  <input id="quantity-{{ product.id }}" type="number" name="quantity" value="1" min="1" max="99" required {% if not product.stock_qty %}disabled{% endif %}>
+                  <button type="submit" class="button" {% if not product.stock_qty %}disabled{% endif %}>Add to basket</button>
+                </form>
               </div>
             </article>
           {% endfor %}

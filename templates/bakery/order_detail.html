@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Order {{ order.order_number }} | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a></header>
+  <main class="menu-section">
+    <h1>Order {{ order.order_number }}</h1>
+    <p>Status: <strong>{{ order.get_status_display }}</strong></p>
+    <p>Branch: {{ order.branch.name }} · {{ order.get_fulfillment_type_display }}</p>
+    {% for item in order.items.all %}<p>{{ item.title_snapshot }} × {{ item.quantity }} — ₦{{ item.unit_price|floatformat:2 }}</p>{% endfor %}
+    <p>Service fee: ₦{{ order.service_fee|floatformat:2 }}</p>
+    <p>Total: ₦{{ order.total_amount|floatformat:2 }}</p>
+    {% if order.status == "PENDING" %}<p>Payment is not yet confirmed. This order is not ready for preparation.</p>{% endif %}
+    {% if order.qr_code_payload %}<h2>Signed dispatch token</h2><p>Show this token to the assigned branch dispatcher for delivery verification.</p><code>{{ order.qr_code_payload }}</code>{% endif %}
+    <h2>Order updates</h2>
+    <ol>{% for entry in order.status_history.all %}<li>{{ entry.get_new_status_display }} — {{ entry.created_at }}</li>{% endfor %}</ol>
+  </main>
+</body>
+</html>

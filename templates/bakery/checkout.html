@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Checkout | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a><a href="{% url 'bakery:order_history' %}">My orders</a></header>
+  <main class="menu-section">
+    <h1>Your basket</h1>
+    {% if messages %}<ul aria-live="polite">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
+    {% if cart_items %}
+      <ul>{% for product, quantity in cart_items %}
+        <li>
+          {{ product.title }} — ₦{{ product.price|floatformat:2 }} each
+          <form action="{% url 'bakery:update_cart' product.id %}" method="post" class="inline-form">
+            {% csrf_token %}<label for="cart-quantity-{{ product.id }}">Quantity</label>
+            <input id="cart-quantity-{{ product.id }}" type="number" name="quantity" value="{{ quantity }}" min="0" max="99" required>
+            <button type="submit">Update (0 removes)</button>
+          </form>
+        </li>
+      {% endfor %}</ul>
+      <p>Items subtotal: ₦{{ subtotal|floatformat:2 }}</p>
+      <p>Delivery fee: ₦{{ delivery_fee|floatformat:2 }} (delivery only; pickup has no fee)</p>
+      <p>Estimated delivery total: ₦{{ estimated_delivery_total|floatformat:2 }}</p>
+      <p>Final prices and availability are checked again securely when you place your order.</p>
+      <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        {% if form.non_field_errors %}<div role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <button type="submit" class="button">Place order — payment not yet collected</button>
+      </form>
+    {% else %}
+      <p>Your basket is empty or its products are no longer available.</p>
+      <a href="{% url 'bakery:storefront' %}">Return to today’s bakery</a>
+    {% endif %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Delivery addresses | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a><a href="{% url 'bakery:order_history' %}">My orders</a></header>
+  <main class="menu-section">
+    <h1>Delivery addresses</h1>
+    {% if messages %}<ul aria-live="polite">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
+    {% for address in addresses %}
+      <article>
+        <h2>{{ address.label|default:address.recipient_name }} {% if address.is_default %}<small>Default</small>{% endif %}</h2>
+        <p>{{ address.recipient_name }} · {{ address.phone }}</p>
+        <p>{{ address.address }}, {{ address.city }}, {{ address.state }}</p>
+        <form method="post" action="{% url 'bakery:delete_address' address.id %}">{% csrf_token %}<button type="submit">Remove address</button></form>
+      </article>
+    {% empty %}<p>No saved addresses yet.</p>{% endfor %}
+    <h2>Add an address</h2>
+    <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="button">Save address</button></form>
+  </main>
+</body>
+</html>

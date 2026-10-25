@@ -102,6 +102,31 @@ class Product(models.Model):
         return self.title
 
 
+class CustomerAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+    label = models.CharField(max_length=60, blank=True)
+    recipient_name = models.CharField(max_length=160)
+    phone = models.CharField(max_length=30)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-is_default", "label", "id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user",),
+                condition=models.Q(is_default=True),
+                name="unique_default_customer_address",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.recipient_name} — {self.city}"
+
+
 class Order(models.Model):
     class FulfillmentType(models.TextChoices):
         DELIVERY = "DELIVERY", "Delivery"
@@ -109,6 +134,7 @@ class Order(models.Model):
 
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending payment"
+        PREPARATION_QUEUED = "PREPARATION_QUEUED", "Preparation queued"
         PAID = "PAID", "Paid"
         BAKING = "BAKING", "Baking"
         DISPATCHED = "DISPATCHED", "Dispatched"
@@ -123,13 +149,14 @@ class Order(models.Model):
     service_fee = models.DecimalField(
         max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)]
     )
-    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(max_length=24, choices=Status.choices, default=Status.PENDING)
     delivery_address = models.TextField(blank=True)
     scheduled_date = models.DateField(null=True, blank=True)
     scheduled_time_slot = models.CharField(max_length=80, blank=True)
     slicing_preference = models.CharField(max_length=40, default="Unsliced")
     qr_code_payload = models.TextField(blank=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
+    inventory_released = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -190,6 +217,25 @@ class SubscriptionItem(models.Model):
         ]
 
 
+class SubscriptionPreparation(models.Model):
+    subscription = models.ForeignKey(
+        Subscription, on_delete=models.PROTECT, related_name="preparations"
+    )
+    order = models.OneToOneField(
+        Order, on_delete=models.PROTECT, related_name="subscription_preparation"
+    )
+    delivery_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("subscription", "delivery_date"),
+                name="unique_subscription_preparation_date",
+            )
+        ]
+
+
 class PaymentTransaction(models.Model):
     class Provider(models.TextChoices):
         ALATPAY = "ALATPAY", "ALATPay"
@@ -216,3 +262,35 @@ class PaymentTransaction(models.Model):
 
     def __str__(self):
         return f"{self.provider}: {self.reference}"
+
+
+class OrderStatusHistory(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="status_history")
+    old_status = models.CharField(max_length=24, choices=Order.Status.choices, blank=True)
+    new_status = models.CharField(max_length=24, choices=Order.Status.choices)
+    changed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="order_status_changes"
+    )
+    note = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("created_at", "id")
+
+
+class WebhookEvent(models.Model):
+    class Provider(models.TextChoices):
+        ALATPAY = "ALATPAY", "ALATPay"
+        PAYSTACK = "PAYSTACK", "Paystack"
+
+    provider = models.CharField(max_length=20, choices=Provider.choices)
+    event_id = models.CharField(max_length=160)
+    payload = models.JSONField()
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("provider", "event_id"), name="unique_payment_webhook_event"
+            )
+        ]

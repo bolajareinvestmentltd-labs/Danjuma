@@ -4,16 +4,18 @@ Local values come from .env. In Vercel, configure these in Project Settings.
 """
 import os
 from pathlib import Path
+from decimal import Decimal, InvalidOperation
 
+from django.core.exceptions import ImproperlyConfigured
 import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-local-development-only-change-before-deploying"
-)
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("SECRET_KEY must be set in the environment.")
 DEBUG = os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
 ALLOWED_HOSTS = [
     host.strip()
@@ -81,14 +83,30 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = "bakery.User"
-LOGIN_URL = "admin:login"
+LOGIN_URL = "bakery:login"
+LOGIN_REDIRECT_URL = "bakery:storefront"
+LOGOUT_REDIRECT_URL = "bakery:storefront"
+
+try:
+    DELIVERY_SERVICE_FEE = Decimal(os.getenv("DELIVERY_SERVICE_FEE", "0.00"))
+except InvalidOperation as exc:
+    raise ImproperlyConfigured("DELIVERY_SERVICE_FEE must be a valid decimal amount.") from exc
+if not DELIVERY_SERVICE_FEE.is_finite() or DELIVERY_SERVICE_FEE < 0:
+    raise ImproperlyConfigured("DELIVERY_SERVICE_FEE must be a finite, non-negative amount.")
+try:
+    QR_TOKEN_MAX_AGE = int(os.getenv("QR_TOKEN_MAX_AGE", "86400"))
+except ValueError as exc:
+    raise ImproperlyConfigured("QR_TOKEN_MAX_AGE must be an integer.") from exc
+if QR_TOKEN_MAX_AGE <= 0:
+    raise ImproperlyConfigured("QR_TOKEN_MAX_AGE must be greater than zero.")
+CRON_SECRET = os.getenv("CRON_SECRET", "")
 
 LANGUAGE_CODE = "en-ng"
 TIME_ZONE = "Africa/Lagos"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

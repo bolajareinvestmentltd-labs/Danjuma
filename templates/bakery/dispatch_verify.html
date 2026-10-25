@@ -1,0 +1,19 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Verify delivery | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a><a href="{% url 'bakery:staff_queue' %}">Order queue</a></header>
+  <main class="menu-section">
+    <h1>Verify delivery</h1>
+    {% if messages %}<ul aria-live="polite">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
+    <p>Enter the signed token presented for an order dispatched by your assigned branch.</p>
+    <form method="post" action="{% url 'bakery:verify_dispatch' %}">
+      {% csrf_token %}
+      <label for="dispatch-token">Dispatch token</label>
+      <textarea id="dispatch-token" name="token" required maxlength="1000"></textarea>
+      <button type="submit" class="button">Verify and record delivery</button>
+    </form>
+  </main>
+</body>
+</html>

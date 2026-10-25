@@ -1,7 +1,8 @@
-from django.contrib import admin
 from django.urls import include, path
 
+from bakery.admin import bakery_admin_site
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", bakery_admin_site.urls),
     path("", include("bakery.urls")),
 ]

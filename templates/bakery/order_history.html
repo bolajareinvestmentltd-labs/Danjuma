@@ -1,0 +1,15 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>My orders | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a></header>
+  <main class="menu-section">
+    <h1>My orders</h1>
+    {% for order in orders %}<article><h2><a href="{% url 'bakery:order_detail' order.id %}">{{ order.order_number }}</a></h2><p>{{ order.branch.name }} · {{ order.get_status_display }} · ₦{{ order.total_amount|floatformat:2 }}</p>
+      <form method="post" action="{% url 'bakery:reorder' order.id %}">{% csrf_token %}<button type="submit">Reorder items</button></form>
+    </article>
+    {% empty %}<p>You haven’t placed an order yet.</p>{% endfor %}
+  </main>
+</body>
+</html>

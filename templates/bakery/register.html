@@ -1,0 +1,16 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Create account | Danjuma Bread</title><link rel="stylesheet" href="{% static 'bakery/site.css' %}"></head>
+<body>
+  <header class="site-header"><a class="brand" href="{% url 'bakery:storefront' %}"><strong>DANJUMA BREAD</strong></a></header>
+  <main class="menu-section">
+    <h1>Create a customer account</h1>
+    <form method="post">{% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="button">Create account</button>
+    </form>
+    <p>Already registered? <a href="{% url 'bakery:login' %}">Sign in</a>.</p>
+  </main>
+</body>
+</html>
