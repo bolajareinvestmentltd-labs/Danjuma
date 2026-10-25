@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-amber-50/30">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Danjuma Bakery - Fresh Artisanal Bread & Subscriptions</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- QRCode.js Library for generating dispatch & receipt QR codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeed',
+              100: '#fef3c7',
+              500: '#d97706',
+              600: '#b45309',
+              700: '#92400e',
+              800: '#78350f',
+              900: '#451a03',
+            },
+            wema: '#7e1837', // Wema Bank signature color accent
+            opay: '#00b875', // OPay brand color
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom scrollbars and transition tweaks */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fef3c7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d97706;
+      border-radius: 9999px;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .pwa-shadow {
+      box-shadow: 0 -4px 20px -2px rgba(0, 0, 0, 0.08);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased h-full text-slate-800 flex flex-col justify-between max-w-md md:max-w-4xl mx-auto bg-white min-h-screen shadow-2xl relative overflow-x-hidden">
+
+  <!-- ==================== SPLASH SCREEN ==================== -->
+  <div id="splash-screen" class="fixed inset-0 z-50 bg-gradient-to-br from-amber-700 via-amber-600 to-amber-900 flex flex-col items-center justify-center text-white transition-opacity duration-500">
+    <div class="relative flex flex-col items-center animate-bounce mb-6">
+      <div class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 shadow-xl">
+        <i class="fa-solid fa-bread-slice text-5xl text-amber-300"></i>
+      </div>
+      <h1 class="text-3xl font-extrabold mt-4 tracking-tight">DANJUMA BREAD</h1>
+      <p class="text-xs text-amber-200 tracking-widest uppercase font-semibold">Freshly Baked Daily</p>
+    </div>
+    <div class="w-12 h-12 border-4 border-amber-300/30 border-t-amber-300 rounded-full animate-spin"></div>
+  </div>
+
+  <!-- ==================== ONBOARDING MODAL ==================== -->
+  <div id="onboarding-modal" class="hidden fixed inset-0 z-40 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center relative overflow-hidden shadow-2xl">
+      <!-- Step 1 -->
+      <div id="onboard-step-1" class="onboard-step">
+        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 text-3xl">
+          <i class="fa-solid fa-wheat-awn"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Artisanal Oven Fresh</h3>
+        <p class="text-sm text-slate-600 mb-6">Order premium hot bread baked with organic local ingredients delivered directly to your door.</p>
+      </div>
+      <!-- Step 2 -->
+      <div id="onboard-step-2" class="onboard-step hidden">
+        <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 text-3xl">
+          <i class="fa-solid fa-repeat"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Daily Bread Subscriptions</h3>
+        <p class="text-sm text-slate-600 mb-6">Never run out of morning loaves. Subscribe for automatic daily or weekly delivery with custom slicing!</p>
+      </div>
+      <!-- Step 3 -->
+      <div id="onboard-step-3" class="onboard-step hidden">
+        <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 text-3xl">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">Seamless Multi-Pay</h3>
+        <p class="text-sm text-slate-600 mb-6">Pay seamlessly via Paystack, ALATPay, or direct deep-link bank transfer to OPay/Wema Bank!</p>
+      </div>
+
+      <!-- Indicators -->
+      <div class="flex justify-center gap-2 mb-6">
+        <span class="step-dot w-2.5 h-2.5 rounded-full bg-amber-600 transition-all"></span>
+        <span class="step-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all"></span>
+        <span class="step-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all"></span>
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <button onclick="closeOnboarding()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 px-3 py-2">Skip</button>
+        <button id="onboard-next-btn" onclick="nextOnboardStep()" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-amber-600/30">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== HEADER NAVBAR ==================== -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-amber-100 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-amber-600 rounded-2xl flex items-center justify-center text-white font-black shadow-md shadow-amber-600/30">
+        <i class="fa-solid fa-bread-slice"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-slate-900 leading-none">DANJUMA BREAD</h1>
+        <span class="text-[10px] font-semibold tracking-wider text-amber-600 uppercase">Bakery & Confectionery</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Portal Toggle Switch -->
+      <button onclick="togglePortal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-user-shield text-amber-600"></i>
+        <span id="portal-label">Admin Portal</span>
+      </button>
+
+      <!-- User Profile Avatar Button -->
+      <button onclick="openProfileDrawer()" class="relative group focus:outline-none">
+        <div id="header-avatar-container" class="w-10 h-10 rounded-full ring-2 ring-amber-500 overflow-hidden bg-amber-100 flex items-center justify-center text-amber-700 shadow-sm transition transform active:scale-95">
+          <img id="header-avatar-img" class="w-full h-full object-cover hidden" alt="User Profile" />
+          <i id="header-avatar-icon" class="fa-solid fa-user text-lg"></i>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- Notification Toast Box -->
+  <div id="toast-notification" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-full text-xs font-medium shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toast-message">Notification action succeeded!</span>
+  </div>
+
+  <!-- MAIN CONSUMER CONTAINER -->
+  <main id="consumer-view" class="flex-1 pb-24 overflow-y-auto">
+
+    <!-- Promo Carousel Banner -->
+    <div class="p-4">
+      <div class="relative bg-gradient-to-r from-amber-700 to-amber-900 rounded-2xl overflow-hidden shadow-lg p-5 text-white">
+        <div class="relative z-10 max-w-[70%]">
+          <span class="bg-amber-500/30 text-amber-200 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full inline-block mb-1 border border-amber-400/30">Fresh Batch Ready</span>
+          <h2 id="promo-title" class="text-lg font-black leading-tight mb-1">20% Off Milk Bread Subscriptions!</h2>
+          <p id="promo-sub" class="text-xs text-amber-100 mb-3">Order before 8:00 AM for guaranteed morning warm delivery.</p>
+          <button onclick="scrollToProducts()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">Order Hot Loaves</button>
+        </div>
+        <i class="fa-solid fa-wheat-awn-circle-exclamation text-8xl text-amber-500/20 absolute -right-4 -bottom-4 rotate-12"></i>
+      </div>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="px-4 mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <button onclick="filterCategory('all')" class="cat-btn active bg-amber-600 text-white text-xs font-semibold px-4 py-2 rounded-xl whitespace-nowrap shadow-sm transition">All Bread</button>
+        <button onclick="filterCategory('loaves')" class="cat-btn bg-slate-100 text-slate-600 hover:bg-amber-50 text-xs font-semibold px-4 py-2 rounded-xl whitespace-nowrap transition">Loaves & Family</button>
+        <button onclick="filterCategory('artisanal')" class="cat-btn bg-slate-100 text-slate-600 hover:bg-amber-50 text-xs font-semibold px-4 py-2 rounded-xl whitespace-nowrap transition">Artisanal & Sourdough</button>
+        <button onclick="filterCategory('pastries')" class="cat-btn bg-slate-100 text-slate-600 hover:bg-amber-50 text-xs font-semibold px-4 py-2 rounded-xl whitespace-nowrap transition">Pastries & Rolls</button>
+        <button onclick="filterCategory('subscriptions')" class="cat-btn bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold px-4 py-2 rounded-xl whitespace-nowrap transition"><i class="fa-solid fa-repeat mr-1"></i> Subscriptions</button>
+      </div>
+    </div>
+
+    <!-- Bread Catalog Grid -->
+    <div id="product-grid-section" class="px-4 mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Oven-Fresh Menu</h3>
+        <span class="text-xs text-slate-500 font-medium" id="catalog-count">6 items available</span>
+      </div>
+
+      <div id="products-list" class="grid grid-cols-2 gap-3.5">
+        <!-- Products populated via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== ORDERS TAB / VIEW ==================== -->
+  <main id="orders-view" class="flex-1 pb-24 overflow-y-auto hidden p-4">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">My Orders & Receipts</h2>
+        <p class="text-xs text-slate-500">Track active deliveries and view instant payment status</p>
+      </div>
+      <button onclick="renderOrders()" class="p-2 text-amber-600 hover:bg-amber-50 rounded-xl">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+    </div>
+
+    <!-- Active & Past Orders Container -->
+    <div id="orders-container" class="space-y-4">
+      <!-- Populated dynamically by renderOrders() -->
+    </div>
+  </main>
+
+  <!-- ==================== ADMIN / STAFF PORTAL ==================== -->
+  <main id="admin-view" class="flex-1 pb-24 overflow-y-auto hidden p-4 bg-slate-900 text-slate-100 min-h-screen">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+      <div>
+        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Internal Operations</span>
+        <h2 class="text-xl font-black text-white">Staff Dispatch & Verification</h2>
+      </div>
+      <button onclick="togglePortal()" class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Exit Portal</button>
+    </div>
+
+    <!-- Verification QR Scanner Simulation -->
+    <div class="bg-slate-800 rounded-2xl p-4 border border-slate-700 mb-6 text-center">
+      <div class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-2 text-2xl">
+        <i class="fa-solid fa-qrcode"></i>
+      </div>
+      <h3 class="font-bold text-white mb-1">Verify Order QR Code</h3>
+      <p class="text-xs text-slate-400 mb-4">Scan customer receipt QR or enter Order ID to mark as dispatched/delivered.</p>
+      
+      <div class="flex gap-2 max-w-sm mx-auto">
+        <input type="text" id="admin-search-id" placeholder="Enter Order ID (e.g. DB-8932)" class="bg-slate-900 text-xs px-3 py-2.5 rounded-xl border border-slate-700 w-full text-white uppercase focus:outline-none focus:border-amber-500">
+        <button onclick="adminVerifyOrder()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap">Verify</button>
+      </div>
+    </div>
+
+    <!-- Admin Order Management List -->
+    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">All Customer Orders</h3>
+    <div id="admin-orders-list" class="space-y-3">
+      <!-- Admin orders list -->
+    </div>
+  </main>
+
+  <!-- ==================== BOTTOM NAVIGATION BAR ==================== -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md md:max-w-4xl mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-2 flex items-center justify-around z-30 pwa-shadow">
+    <button onclick="switchTab('home')" id="nav-home" class="nav-tab active flex flex-col items-center text-amber-600 transition">
+      <i class="fa-solid fa-store text-lg mb-0.5"></i>
+      <span class="text-[10px] font-bold">Bakery</span>
+    </button>
+
+    <button onclick="switchTab('orders')" id="nav-orders" class="nav-tab flex flex-col items-center text-slate-400 hover:text-amber-600 transition relative">
+      <i class="fa-solid fa-receipt text-lg mb-0.5"></i>
+      <span class="text-[10px] font-medium">My Orders</span>
+      <span id="orders-badge" class="hidden absolute -top-1 right-2 bg-amber-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+    </button>
+
+    <button onclick="openCartDrawer()" id="nav-cart" class="nav-tab flex flex-col items-center text-slate-400 hover:text-amber-600 transition relative">
+      <div class="relative">
+        <i class="fa-solid fa-basket-shopping text-lg mb-0.5"></i>
+        <span id="cart-badge" class="hidden absolute -top-1.5 -right-2 bg-amber-600 text-white text-[9px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+      </div>
+      <span class="text-[10px] font-medium">Cart</span>
+    </button>
+
+    <button onclick="openProfileDrawer()" id="nav-profile" class="nav-tab flex flex-col items-center text-slate-400 hover:text-amber-600 transition">
+      <i class="fa-solid fa-user text-lg mb-0.5"></i>
+      <span class="text-[10px] font-medium">Profile</span>
+    </button>
+  </nav>
+
+  <!-- ==================== SHOPPING CART & CHECKOUT DRAWER ==================== -->
+  <div id="cart-drawer" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden transition-opacity duration-300">
+    <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl max-w-md md:max-w-4xl mx-auto">
+      
+      <!-- Cart Header -->
+      <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-basket-shopping text-amber-600 text-xl"></i>
+          <h3 class="font-bold text-slate-900">Your Fresh Bakery Order</h3>
+        </div>
+        <button onclick="closeCartDrawer()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Cart Content -->
+      <div id="cart-items-container" class="p-4 overflow-y-auto space-y-3 max-h-[40vh] flex-1">
+        <!-- Cart items dynamically injected -->
+      </div>
+
+      <!-- Delivery / Subscription Checkout Options -->
+      <div id="checkout-section" class="p-4 border-t border-slate-100 bg-amber-50/50 space-y-3">
+        <!-- Slicing Option -->
+        <div class="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-amber-200">
+          <span class="font-semibold text-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-scissors text-amber-600"></i> Custom Bread Slicing
+          </span>
+          <select id="slicing-preference" class="bg-amber-50 border border-amber-300 rounded-lg text-xs font-semibold py-1 px-2 text-slate-800 focus:outline-none">
+            <option value="Unsliced">Whole / Unsliced</option>
+            <option value="Thick Slices">Thick Toast Slices</option>
+            <option value="Thin Slices">Thin Sandwich Slices</option>
+          </select>
+        </div>
+
+        <!-- Schedule / Subscription Toggle -->
+        <div class="bg-white p-3 rounded-xl border border-amber-200 text-xs space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-semibold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-calendar-check text-amber-600"></i> Delivery Type
+            </label>
+            <select id="delivery-type" onchange="toggleSubscriptionFields()" class="bg-slate-100 border border-slate-300 rounded-lg py-1 px-2 font-medium">
+              <option value="instant">One-time Immediate</option>
+              <option value="scheduled">Scheduled Date & Time</option>
+              <option value="subscription">Daily Bread Subscription</option>
+            </select>
+          </div>
+
+          <div id="subscription-options" class="hidden pt-2 border-t border-slate-100 space-y-2">
+            <div class="flex gap-2">
+              <select id="sub-frequency" class="w-1/2 bg-amber-50 border border-amber-300 rounded-lg p-1.5 font-medium text-xs">
+                <option value="Daily">Deliver Every Morning</option>
+                <option value="Mon-Fri">Mon-Fri Workdays</option>
+                <option value="Weekly">Weekly (Saturdays)</option>
+              </select>
+              <input type="time" id="sub-time" value="07:30" class="w-1/2 bg-amber-50 border border-amber-300 rounded-lg p-1.5 font-medium text-xs">
+            </div>
+            <p class="text-[10px] text-amber-700">Bread will be baked hot and dispatched automatically according to your frequency!</p>
+          </div>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="space-y-1 text-xs">
+          <div class="flex justify-between text-slate-500">
+            <span>Subtotal</span>
+            <span id="cart-subtotal" class="font-semibold">₦0</span>
+          </div>
+          <div class="flex justify-between text-slate-500">
+            <span>Fresh Delivery Fee</span>
+            <span id="cart-delivery" class="font-semibold">₦500</span>
+          </div>
+          <div class="flex justify-between text-slate-900 font-bold text-sm pt-2 border-t border-amber-200">
+            <span>Total Payable</span>
+            <span id="cart-total" class="text-amber-600">₦0</span>
+          </div>
+        </div>
+
+        <!-- Proceed to Checkout Button -->
+        <button onclick="proceedToPaymentModal()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-amber-600/30 transition flex items-center justify-center gap-2">
+          <span>Proceed to Payment</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== DUAL-DIMENSION PAYMENT MODAL ==================== -->
+  <div id="payment-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative max-h-[92vh] flex flex-col">
+      
+      <!-- Payment Header -->
+      <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Checkout Gateway</span>
+          <h3 class="font-bold text-base">Select Payment Method</h3>
+        </div>
+        <button onclick="closePaymentModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-4 text-xs">
+        
+        <!-- Order Summary Tag -->
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl flex items-center justify-between">
+          <div>
+            <span class="text-slate-500 text-[10px] uppercase font-bold block">Amount Due</span>
+            <span id="payment-modal-amount" class="text-lg font-black text-amber-700">₦0</span>
+          </div>
+          <div class="text-right">
+            <span id="payment-order-type" class="bg-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-bold text-[10px]">Instant Order</span>
+          </div>
+        </div>
+
+        <!-- DIMENSION 1: INSTANT ONLINE PAYMENT GATEWAYS -->
+        <div class="space-y-2">
+          <label class="font-bold text-slate-800 uppercase tracking-wider text-[10px] block text-slate-400">Dimension 1: Card / Online Gateways</label>
+
+          <!-- Paystack Gateway -->
+          <button onclick="selectPaymentOption('paystack')" id="pay-opt-paystack" class="pay-option-btn w-full p-3 border-2 border-slate-200 rounded-2xl flex items-center justify-between hover:border-amber-500 transition text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center font-bold text-lg">
+                <i class="fa-solid fa-credit-card"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900">Paystack Gateway</h4>
+                <p class="text-[10px] text-slate-500">Cards, Bank USSD, & Instant Direct</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-300"></i>
+          </button>
+
+          <!-- ALATPay Gateway -->
+          <button onclick="selectPaymentOption('alatpay')" id="pay-opt-alatpay" class="pay-option-btn w-full p-3 border-2 border-slate-200 rounded-2xl flex items-center justify-between hover:border-amber-500 transition text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-rose-100 text-wema rounded-xl flex items-center justify-center font-bold text-lg">
+                <i class="fa-solid fa-building-columns"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900">ALATPay by Wema Bank</h4>
+                <p class="text-[10px] text-slate-500">Wema Card, ALAT Account & QR</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-300"></i>
+          </button>
+        </div>
+
+        <!-- DIMENSION 2: DIRECT BANK TRANSFER & APP DEEP-LINKING -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <label class="font-bold text-slate-800 uppercase tracking-wider text-[10px] block text-slate-400">Dimension 2: Bank Transfer & App Deep-Links</label>
+
+          <button onclick="selectPaymentOption('transfer')" id="pay-opt-transfer" class="pay-option-btn w-full p-3 border-2 border-slate-200 rounded-2xl flex items-center justify-between hover:border-amber-500 transition text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center font-bold text-lg">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900">Direct Wema Bank Transfer</h4>
+                <p class="text-[10px] text-slate-500">Danjuma Official Wema Account & Fintech Launchers</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-300"></i>
+          </button>
+        </div>
+
+        <!-- BANK DETAILS & DEEP LINKS CONTAINER (Shows when Transfer selected) -->
+        <div id="transfer-details-box" class="hidden bg-slate-50 border border-amber-300 rounded-2xl p-3.5 space-y-3">
+          <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+            <div class="flex justify-between items-center text-[10px] font-bold uppercase text-slate-400">
+              <span>Official Account Details</span>
+              <span class="text-wema flex items-center gap-1"><i class="fa-solid fa-building"></i> WEMA BANK</span>
+            </div>
+            <div>
+              <span class="text-[11px] text-slate-500">Account Name</span>
+              <p class="font-bold text-slate-900">Danjuma Bakery & Confectionery Ltd</p>
+            </div>
+            <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+              <div>
+                <span class="text-[11px] text-slate-500">Wema Account Number</span>
+                <p id="wema-acc-num" class="font-black text-base text-amber-700 tracking-wider">0123456789</p>
+              </div>
+              <button onclick="copyToClipboard('0123456789', 'Account Number copied!')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                <i class="fa-solid fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+
+          <!-- Deep Link Direct App Launchers -->
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">Tap to Open Banking App:</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="openBankingApp('opay')" class="p-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">O</div>
+                <span>Open OPay</span>
+              </button>
+              <button onclick="openBankingApp('alat')" class="p-2 bg-purple-50 hover:bg-purple-100 border border-purple-300 rounded-xl flex items-center gap-2 text-purple-900 font-bold text-xs">
+                <div class="w-6 h-6 rounded-full bg-wema text-white flex items-center justify-center text-[10px]">A</div>
+                <span>Open ALAT</span>
+              </button>
+              <button onclick="openBankingApp('kuda')" class="p-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 rounded-xl flex items-center gap-2 text-indigo-900 font-bold text-xs">
+                <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">K</div>
+                <span>Open Kuda</span>
+              </button>
+              <button onclick="openBankingApp('moniepoint')" class="p-2 bg-blue-50 hover:bg-blue-100 border border-blue-300 rounded-xl flex items-center gap-2 text-blue-900 font-bold text-xs">
+                <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">M</div>
+                <span>Moniepoint</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Confirm Payment Button -->
+        <button onclick="processFinalPayment()" id="confirm-pay-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-2xl shadow-lg transition">
+          Complete Payment & Order
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== USER PROFILE DRAWER ==================== -->
+  <div id="profile-drawer" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-opacity">
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-xs bg-white p-5 flex flex-col shadow-2xl justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+          <h3 class="font-bold text-slate-900 text-lg">My Danjuma Profile</h3>
+          <button onclick="closeProfileDrawer()" class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Personal Picture / Store Avatar Selector -->
+        <div class="text-center mb-6">
+          <div class="relative w-24 h-24 mx-auto mb-3">
+            <div id="drawer-avatar-preview" class="w-24 h-24 rounded-full ring-4 ring-amber-500 overflow-hidden bg-amber-100 flex items-center justify-center text-amber-700 text-3xl shadow-inner">
+              <img id="drawer-avatar-img" class="w-full h-full object-cover hidden" alt="Profile avatar" />
+              <i id="drawer-avatar-icon" class="fa-solid fa-user"></i>
+            </div>
+            <label for="avatar-file-input" class="absolute bottom-0 right-0 bg-amber-600 hover:bg-amber-700 text-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shadow-md">
+              <i class="fa-solid fa-camera text-xs"></i>
+            </label>
+            <input type="file" id="avatar-file-input" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+          </div>
+          <span class="text-[10px] text-slate-400">Click camera icon to upload personal photo or select preset avatar:</span>
+
+          <!-- Preset Avatar Selection List -->
+          <div class="flex justify-center gap-2 mt-3">
+            <button onclick="setPresetAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80')" class="w-8 h-8 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-amber-500 focus:ring-amber-500">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+            </button>
+            <button onclick="setPresetAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80')" class="w-8 h-8 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-amber-500 focus:ring-amber-500">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+            </button>
+            <button onclick="setPresetAvatar('https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80')" class="w-8 h-8 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-amber-500 focus:ring-amber-500">
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+            </button>
+            <button onclick="clearAvatarImage()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs hover:bg-slate-200">
+              <i class="fa-solid fa-user-slash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Editable User Form -->
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Full Name</label>
+            <input type="text" id="user-name-input" value="Alhaji Danjuma Customer" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 font-medium">
+          </div>
+
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Email Address</label>
+
+            <input type="email" id="user-email-input" value="danjuma.customer@gmail.com" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 font-medium">
+          </div>
+
+          <div>
+            <label class="font-semibold text-slate-700 block mb-1">Delivery Address</label>
+            <input type="text" id="user-address-input" value="No. 14 Commercial Avenue, Wuse 2, Abuja" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 font-medium">
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-4 border-t border-slate-100">
+        <button onclick="saveUserProfile()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl shadow-md transition text-xs">
+          Save Profile Details
+        </button>
+        <button onclick="triggerVerificationSimulation()" class="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold py-2 rounded-xl border border-emerald-200 text-xs flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-shield-check"></i> Email Status: <span id="verification-status-badge" class="font-bold">Verified</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ORDER QR CODE DETAIL MODAL ==================== -->
+  <div id="qr-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center relative shadow-2xl">
+      <button onclick="closeQRModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest block mb-1">Dispatch Pickup Verification</span>
+      <h3 id="qr-modal-order-id" class="text-lg font-black text-slate-900 mb-4">DB-0000</h3>
+
+      <div id="qrcode-canvas" class="flex justify-center p-4 bg-white border-2 border-amber-200 rounded-2xl mx-auto w-fit mb-4"></div>
+
+      <p class="text-xs text-slate-500 mb-4">Show this QR code to the Danjuma dispatch rider or staff to confirm delivery receipt.</p>
+      
+      <button onclick="closeQRModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs">
+        Close Window
+      </button>
+    </div>
+  </div>
+
+
+  <!-- JavaScript Application State & Logic -->
+  <script>
+    // --- BAKERY CATALOG DATA ---
+    const productsData = [
+      {
+        id: 1,
+        name: 'Danjuma Special Milk Bread',
+        category: 'loaves',
+        price: 1200,
+        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80',
+        desc: 'Rich, soft, fluffy butter-infused loaf. Our customer favorite signature bread.'
+      },
+      {
+        id: 2,
+        name: 'Artisanal Sourdough Batard',
+        category: 'artisanal',
+        price: 2500,
+        image: 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=400&auto=format&fit=crop&q=80',
+        desc: 'Naturally fermented for 24 hours with crispy crust and chewy texture.'
+      },
+      {
+        id: 3,
+        name: 'Whole Wheat Honey Loaf',
+        category: 'loaves',
+        price: 1500,
+        image: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&auto=format&fit=crop&q=80',
+        desc: '100% whole grain sweetened with organic honey for a healthy morning option.'
+      },
+      {
+        id: 4,
+        name: 'Golden Butter Croissant Pack (4x)',
+        category: 'pastries',
+        price: 2000,
+        image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&auto=format&fit=crop&q=80',
+        desc: 'Flaky, layered French-style golden croissants freshly baked every dawn.'
+      },
+      {
+        id: 5,
+        name: 'Fruit & Raisin Sweet Bread',
+        category: 'loaves',
+        price: 1800,
+        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80',
+        desc: 'Loaded with plump raisins and real dried candied fruits.'
+      },
+      {
+        id: 6,
+        name: 'Daily Family Loaf Subscription',
+        category: 'subscriptions',
+        price: 7500,
+        image: 'https://images.unsplash.com/photo-1534620808146-d33bb39128b2?w=400&auto=format&fit=crop&q=80',
+        desc: 'Weekly package: 1 fresh loaf delivered to your door every morning for 7 days.'
+      }
+    ];
+
+    // --- APP GLOBAL STATE ---
+    let cart = [];
+    let orders = [
+      {
+        id: 'DB-8932',
+        date: '2026-10-22 08:30 AM',
+        items: [{ id: 1, name: 'Danjuma Special Milk Bread', price: 1200, qty: 2 }],
+        slicing: 'Thick Slices',
+        deliveryType: 'instant',
+        total: 2900,
+        paymentMethod: 'Paystack Gateway',
+        status: 'Baking', // Pending Payment, Baking, Out for Delivery, Delivered
+        qrCodeVal: 'DB-8932-VERIFIED-DANJUMA'
+      }
+    ];
+    let currentUser = {
+      name: 'Alhaji Danjuma Customer',
+      email: 'danjuma.customer@gmail.com',
+      address: 'No. 14 Commercial Avenue, Wuse 2, Abuja',
+      isVerified: true,
+      avatarUrl: ''
+    };
+    let selectedPaymentGateway = 'paystack';
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+      // Simulate splash screen hide
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        splash.classList.add('opacity-0');
+        setTimeout(() => splash.remove(), 500);
+        
+        // Show onboarding if first time
+        if(!localStorage.getItem('danjuma_onboarded')) {
+          document.getElementById('onboarding-modal').classList.remove('hidden');
+        }
+      }, 1200);
+
+      renderProducts(productsData);
+      renderOrders();
+      renderAdminOrders();
+      updateCartBadge();
+    };
+
+    // --- ONBOARDING LOGIC ---
+    let currentOnboardStep = 1;
+    function nextOnboardStep() {
+      document.getElementById(`onboard-step-${currentOnboardStep}`).classList.add('hidden');
+      currentOnboardStep++;
+      if(currentOnboardStep <= 3) {
+        document.getElementById(`onboard-step-${currentOnboardStep}`).classList.remove('hidden');
+        updateStepDots();
+        if(currentOnboardStep === 3) {
+          document.getElementById('onboard-next-btn').innerText = "Get Started";
+        }
+      } else {
+        closeOnboarding();
+      }
+    }
+
+    function updateStepDots() {
+      const dots = document.querySelectorAll('.step-dot');
+      dots.forEach((dot, idx) => {
+        if(idx + 1 === currentOnboardStep) {
+          dot.className = 'step-dot w-6 h-2.5 rounded-full bg-amber-600 transition-all';
+        } else {
+          dot.className = 'step-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all';
+        }
+      });
+    }
+
+    function closeOnboarding() {
+      document.getElementById('onboarding-modal').classList.add('hidden');
+      localStorage.setItem('danjuma_onboarded', 'true');
+    }
+
+    // --- PRODUCT RENDERING & CATEGORY FILTERING ---
+    function renderProducts(items) {
+      const container = document.getElementById('products-list');
+      document.getElementById('catalog-count').innerText = `${items.length} items available`;
+      container.innerHTML = items.map(p => `
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <div class="relative h-28 w-full bg-slate-100">
+              <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
+              ${p.category === 'subscriptions' ? '<span class="absolute top-2 left-2 bg-amber-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow">SUB</span>' : ''}
+            </div>
+            <div class="p-3">
+              <h4 class="font-bold text-xs text-slate-900 line-clamp-1 mb-1">${p.name}</h4>
+              <p class="text-[10px] text-slate-500 line-clamp-2 leading-tight mb-2">${p.desc}</p>
+            </div>
+          </div>
+          <div class="px-3 pb-3 flex items-center justify-between mt-auto">
+            <span class="font-black text-amber-700 text-xs">₦${p.price.toLocaleString()}</span>
+            <button onclick="addToCart(${p.id})" class="w-7 h-7 rounded-xl bg-amber-100 hover:bg-amber-600 text-amber-800 hover:text-white flex items-center justify-center transition active:scale-90">
+              <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterCategory(cat) {
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.remove('bg-amber-600', 'text-white', 'active');
+        btn.classList.add('bg-slate-100', 'text-slate-600');
+      });
+      event.currentTarget.classList.remove('bg-slate-100', 'text-slate-600');
+      event.currentTarget.classList.add('bg-amber-600', 'text-white', 'active');
+
+      if(cat === 'all') {
+        renderProducts(productsData);
+      } else {
+        const filtered = productsData.filter(p => p.category === cat);
+        renderProducts(filtered);
+      }
+    }
+
+    function scrollToProducts() {
+      document.getElementById('product-grid-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- CART LOGIC ---
+    function addToCart(id) {
+      const product = productsData.find(p => p.id === id);
+      const existing = cart.find(item => item.id === id);
+      if(existing) {
+        existing.qty++;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      updateCartBadge();
+      showToast(`Added ${product.name} to cart`);
+    }
+
+    function updateCartBadge() {
+      const badge = document.getElementById('cart-badge');
+      const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+      if(totalQty > 0) {
+        badge.innerText = totalQty;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openCartDrawer() {
+      renderCartDrawer();
+      document.getElementById('cart-drawer').classList.remove('hidden');
+    }
+
+    function closeCartDrawer() {
+      document.getElementById('cart-drawer').classList.add('hidden');
+    }
+
+    function renderCartDrawer() {
+      const container = document.getElementById('cart-items-container');
+      if(cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8">
+            <i class="fa-solid fa-basket-shopping text-4xl text-slate-300 mb-2"></i>
+            <p class="text-xs text-slate-500 font-medium">Your bakery cart is currently empty.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = cart.map(item => `
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+            <div class="flex items-center gap-3">
+              <img src="${item.image}" class="w-12 h-12 rounded-lg object-cover">
+              <div>
+                <h5 class="font-bold text-xs text-slate-800">${item.name}</h5>
+                <span class="text-[11px] text-amber-700 font-semibold">₦${item.price.toLocaleString()}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-white border border-slate-200 rounded-md flex items-center justify-center text-xs text-slate-600">-</button>
+              <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+              <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-amber-600 text-white rounded-md flex items-center justify-center text-xs">+</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Calculations
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const delivery = cart.length > 0 ? 500 : 0;
+      const total = subtotal + delivery;
+
+      document.getElementById('cart-subtotal').innerText = `₦${subtotal.toLocaleString()}`;
+      document.getElementById('cart-delivery').innerText = `₦${delivery.toLocaleString()}`;
+      document.getElementById('cart-total').innerText = `₦${total.toLocaleString()}`;
+    }
+
+    function changeQty(id, delta) {
+      const idx = cart.findIndex(i => i.id === id);
+      if(idx > -1) {
+        cart[idx].qty += delta;
+        if(cart[idx].qty <= 0) {
+          cart.splice(idx, 1);
+        }
+      }
+      updateCartBadge();
+      renderCartDrawer();
+    }
+
+    function toggleSubscriptionFields() {
+      const type = document.getElementById('delivery-type').value;
+      const subBox = document.getElementById('subscription-options');
+      if(type === 'subscription') {
+        subBox.classList.remove('hidden');
+      } else {
+        subBox.classList.add('hidden');
+      }
+    }
+
+    // --- CHECKOUT & DUAL PAYMENT GATEWAY LOGIC ---
+    function proceedToPaymentModal() {
+      if(cart.length === 0) {
+        showToast('Please add items to your cart first!', 'error');
+        return;
+      }
+      closeCartDrawer();
+      
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const total = subtotal + 500;
+      
+      document.getElementById('payment-modal-amount').innerText = `₦${total.toLocaleString()}`;
+      
+      const delType = document.getElementById('delivery-type').value;
+      document.getElementById('payment-order-type').innerText = delType === 'subscription' ? 'Subscription' : 'Direct Order';
+
+      // Select default
+      selectPaymentOption('paystack');
+
+      document.getElementById('payment-modal').classList.remove('hidden');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('payment-modal').classList.add('hidden');
+    }
+
+    function selectPaymentOption(opt) {
+      selectedPaymentGateway = opt;
+      document.querySelectorAll('.pay-option-btn').forEach(btn => {
+        btn.classList.remove('border-amber-500', 'bg-amber-50/50');
+      });
+
+      const activeBtn = document.getElementById(`pay-opt-${opt}`);
+      if(activeBtn) {
+        activeBtn.classList.add('border-amber-500', 'bg-amber-50/50');
+      }
+
+      const transferBox = document.getElementById('transfer-details-box');
+      if(opt === 'transfer') {
+        transferBox.classList.remove('hidden');
+      } else {
+        transferBox.classList.add('hidden');
+      }
+    }
+
+    function copyToClipboard(text, msg) {
+      const tempInput = document.createElement('input');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast(msg);
+    }
+
+    function openBankingApp(appName) {
+      showToast(`Redirecting to open ${appName.toUpperCase()} App...`);
+      setTimeout(() => {
+        // Deep-link schema attempt
+        window.location.href = `${appName}://`;
+      }, 500);
+    }
+
+    function processFinalPayment() {
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const total = subtotal + 500;
+      const orderId = 'DB-' + Math.floor(1000 + Math.random() * 9000);
+      const slicing = document.getElementById('slicing-preference').value;
+      const delType = document.getElementById('delivery-type').value;
+
+      let gateName = 'Paystack Gateway';
+      if(selectedPaymentGateway === 'alatpay') gateName = 'ALATPay Wema Bank';
+      if(selectedPaymentGateway === 'transfer') gateName = 'Direct Bank Transfer';
+
+      const newOrder = {
+        id: orderId,
+        date: new Date().toLocaleString(),
+        items: [...cart],
+        slicing: slicing,
+        deliveryType: delType,
+        total: total,
+        paymentMethod: gateName,
+        status: 'Baking',
+        qrCodeVal: `${orderId}-VERIFIED-DANJUMA`
+      };
+
+      orders.unshift(newOrder);
+      cart = [];
+      updateCartBadge();
+      closePaymentModal();
+
+      showToast(`Order #${orderId} placed successfully!`);
+      switchTab('orders');
+      renderOrders();
+      renderAdminOrders();
+    }
+
+    // --- ORDER HISTORY & TRACKING VIEW ---
+    function renderOrders() {
+      const container = document.getElementById('orders-container');
+      const badge = document.getElementById('orders-badge');
+      
+      if(orders.length > 0) {
+        badge.innerText = orders.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      if(orders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl border border-slate-100">
+            <i class="fa-solid fa-receipt text-5xl text-slate-200 mb-3"></i>
+            <h4 class="font-bold text-slate-700 text-sm">No Orders Found</h4>
+            <p class="text-xs text-slate-400">Your placed orders and subscriptions will show up here.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = orders.map(ord => `
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div>
+              <span class="text-xs font-black text-slate-900">${ord.id}</span>
+              <span class="text-[10px] text-slate-400 block">${ord.date}</span>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+              ord.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' :
+              ord.status === 'Out for Delivery' ? 'bg-sky-100 text-sky-800' :
+              ord.status === 'Baking' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+            }">
+              <i class="fa-solid fa-circle-dot text-[8px] mr-1"></i>${ord.status}
+            </span>
+          </div>
+
+          <!-- Items list -->
+          <div class="space-y-1.5 text-xs">
+            ${ord.items.map(i => `
+              <div class="flex justify-between text-slate-700">
+                <span>${i.qty}x ${i.name}</span>
+                <span class="font-semibold">₦${(i.price * i.qty).toLocaleString()}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Slicing & Method Tag -->
+          <div class="flex items-center justify-between text-[10px] text-slate-500 bg-slate-50 p-2 rounded-xl">
+            <span>Slicing: <strong class="text-slate-800">${ord.slicing}</strong></span>
+            <span>Payed via: <strong class="text-amber-700">${ord.paymentMethod}</strong></span>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+            <div>
+              <span class="text-[10px] text-slate-400 block">Total Price</span>
+              <span class="font-black text-amber-700 text-sm">₦${ord.total.toLocaleString()}</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button onclick="reorderItems('${ord.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center gap-1">
+                <i class="fa-solid fa-rotate-left"></i> Re-order
+              </button>
+              <button onclick="openQRModal('${ord.id}', '${ord.qrCodeVal}')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center gap-1 shadow-sm">
+                <i class="fa-solid fa-qrcode"></i> Pickup QR
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function reorderItems(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if(order) {
+        order.items.forEach(item => {
+          const existing = cart.find(c => c.id === item.id);
+          if(existing) {
+            existing.qty += item.qty;
+          } else {
+            cart.push({ ...item });
+          }
+        });
+        updateCartBadge();
+        openCartDrawer();
+        showToast('Previous order items added to cart!');
+      }
+    }
+
+    function openQRModal(orderId, val) {
+      document.getElementById('qr-modal-order-id').innerText = orderId;
+      const qrContainer = document.getElementById('qrcode-canvas');
+      qrContainer.innerHTML = '';
+      
+      new QRCode(qrContainer, {
+        text: val,
+        width: 140,
+        height: 140,
+        colorDark : "#451a03",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      document.getElementById('qr-modal').classList.remove('hidden');
+    }
+
+    function closeQRModal() {
+      document.getElementById('qr-modal').classList.add('hidden');
+    }
+
+    // --- NAVIGATION TAB SWITCHING ---
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-tab').forEach(b => {
+        b.classList.remove('text-amber-600');
+        b.classList.add('text-slate-400');
+      });
+
+      document.getElementById('consumer-view').classList.add('hidden');
+      document.getElementById('orders-view').classList.add('hidden');
+      document.getElementById('admin-view').classList.add('hidden');
+
+      if(tab === 'home') {
+        document.getElementById('consumer-view').classList.remove('hidden');
+        document.getElementById('nav-home').classList.add('text-amber-600');
+      } else if(tab === 'orders') {
+        document.getElementById('orders-view').classList.remove('hidden');
+        document.getElementById('nav-orders').classList.add('text-amber-600');
+      }
+    }
+
+    // --- ADMIN / STAFF PORTAL LOGIC ---
+    function togglePortal() {
+      const adminView = document.getElementById('admin-view');
+      const isHidden = adminView.classList.contains('hidden');
+
+      if(isHidden) {
+        document.getElementById('consumer-view').classList.add('hidden');
+        document.getElementById('orders-view').classList.add('hidden');
+        adminView.classList.remove('hidden');
+        document.getElementById('portal-label').innerText = "Consumer App";
+      } else {
+        adminView.classList.add('hidden');
+        switchTab('home');
+        document.getElementById('portal-label').innerText = "Admin Portal";
+      }
+    }
+
+    function renderAdminOrders() {
+      const container = document.getElementById('admin-orders-list');
+      if(orders.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500">No active orders in dispatch queue.</p>';
+        return;
+      }
+
+      container.innerHTML = orders.map(ord => `
+        <div class="bg-slate-800 border border-slate-700 p-3 rounded-2xl flex items-center justify-between text-xs">
+          <div>
+            <span class="font-bold text-amber-400">${ord.id}</span>
+            <span class="text-[10px] text-slate-400 block">${ord.items.length} items • ₦${ord.total.toLocaleString()}</span>
+            <span class="text-[10px] text-slate-300">Method: ${ord.paymentMethod}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select onchange="updateOrderStatus('${ord.id}', this.value)" class="bg-slate-900 text-amber-300 border border-slate-600 rounded-lg text-xs p-1.5 focus:outline-none">
+              <option value="Baking" ${ord.status === 'Baking' ? 'selected' : ''}>Baking</option>
+              <option value="Out for Delivery" ${ord.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+              <option value="Delivered" ${ord.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateOrderStatus(id, newStatus) {
+      const ord = orders.find(o => o.id === id);
+      if(ord) {
+        ord.status = newStatus;
+        renderOrders();
+        showToast(`Order ${id} status updated to ${newStatus}`);
+      }
+    }
+
+    function adminVerifyOrder() {
+      const query = document.getElementById('admin-search-id').value.trim().toUpperCase();
+      const ord = orders.find(o => o.id === query);
+      if(ord) {
+        ord.status = 'Delivered';
+        renderOrders();
+        renderAdminOrders();
+        showToast(`Order ${ord.id} verified and marked as DELIVERED!`);
+        document.getElementById('admin-search-id').value = '';
+      } else {
+        showToast('Invalid or unknown Order ID', 'error');
+      }
+    }
+
+    // --- USER PROFILE & AVATAR CUSTOMIZATION ---
+    function openProfileDrawer() {
+      document.getElementById('profile-drawer').classList.remove('hidden');
+    }
+
+    function closeProfileDrawer() {
+      document.getElementById('profile-drawer').classList.add('hidden');
+    }
+
+    function handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentUser.avatarUrl = e.target.result;
+          applyAvatarToUI();
+          showToast('Profile photo uploaded successfully!');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function setPresetAvatar(url) {
+      currentUser.avatarUrl = url;
+      applyAvatarToUI();
+      showToast('Preset avatar selected!');
+    }
+
+    function clearAvatarImage() {
+      currentUser.avatarUrl = '';
+      applyAvatarToUI();
+      showToast('Avatar image removed.');
+    }
+
+    function applyAvatarToUI() {
+      const headerImg = document.getElementById('header-avatar-img');
+      const headerIcon = document.getElementById('header-avatar-icon');
+      const drawerImg = document.getElementById('drawer-avatar-img');
+      const drawerIcon = document.getElementById('drawer-avatar-icon');
+
+      if(currentUser.avatarUrl) {
+        headerImg.src = currentUser.avatarUrl;
+        headerImg.classList.remove('hidden');
+        headerIcon.classList.add('hidden');
+
+        drawerImg.src = currentUser.avatarUrl;
+        drawerImg.classList.remove('hidden');
+        drawerIcon.classList.add('hidden');
+      } else {
+        headerImg.classList.add('hidden');
+        headerIcon.classList.remove('hidden');
+
+        drawerImg.classList.add('hidden');
+        drawerIcon.classList.remove('hidden');
+      }
+    }
+
+    function saveUserProfile() {
+      currentUser.name = document.getElementById('user-name-input').value;
+      currentUser.email = document.getElementById('user-email-input').value;
+      currentUser.address = document.getElementById('user-address-input').value;
+
+      closeProfileDrawer();
+      showToast('User profile saved successfully!');
+    }
+
+    function triggerVerificationSimulation() {
+      currentUser.isVerified = true;
+      document.getElementById('verification-status-badge').innerText = "Verified";
+      showToast("Email address verified!");
+    }
+
+    // --- TOAST NOTIFICATIONS ---
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast-notification');
+      const icon = document.getElementById('toast-icon');
+      const text = document.getElementById('toast-message');
+
+      text.innerText = msg;
+      if(type === 'error') {
+        icon.className = 'fa-solid fa-circle-xmark text-rose-400';
+      } else {
+        icon.className = 'fa-solid fa-circle-check text-emerald-400';
+      }
+
+      toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
